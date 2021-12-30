@@ -41,13 +41,27 @@ public class Main
     int[][] y_guide_value;
     Boolean[][] board;
     int size;
-    // [0][n] -> 가로  [1][n] -> 세로
+
+    boolean print = true;
 
     public void run()
     {
         setValue(15);
-        board[1][2] = true;
-        showState();
+        for(int j = 0; j < 10; j++)
+        {
+
+            print = false;
+            for(int i = 0; i < size; i++)
+            {
+                checkX(i);
+            }
+            for(int i = 0; i < size; i++)
+            {
+                checkY(i);
+            }
+            print = true;
+            showState();
+        }
     }
     public Boolean checkX(int index)
     {
@@ -66,26 +80,204 @@ public class Main
             }
             // ■■■■□■■□■■■□□□□ 4 2 3
             // ■■■■□□□□□■■□■■■ 4 2 3
-            Stack<ArrayList<Integer>> stack = new Stack<>();
+            ArrayList<ArrayList<Integer>> result = new ArrayList<>();
+            Stack<ArrayList<Integer>> stack = new Stack<>(); // stack index 0 : 총 사용한 수 / index 1 : 추가한 블럭 갯수
             {
                 ArrayList<Integer> revList = new ArrayList<>();
-                revList.add(0);
+                revList.add(0);revList.add(0);
                 stack.push(revList);
             } // 기본 값
+            int cou = 0;
             while(!stack.isEmpty())
             {
-                ArrayList<Integer> l = stack.pop();
-                for(int i = 0; i < x_guide_value.length - l.get(0) - 1; i++)
+                println("c " + cou++);
+                ArrayList<Integer> l = stack.pop(); if(l.get(1) == x_guide_value[index].length) {result.add(l); println("R" + l.toString()); continue;}
+                int i = 1; if(l.get(1) == 0) {i = 0;}
+                println("        " + (n - l.get(0) - (x_guide_value[index].length - l.get(1) - 1)) + " " + n + " " + x_guide_value[index].length);
+                for(; i < n - l.get(0) - (x_guide_value[index].length - l.get(1) - 2); i++)
                 {
-
+                    println("        " + i);
+                    ArrayList<Integer> l_c = new ArrayList<>(l);
+                    l_c.set(0, l.get(0) + i);
+                    l_c.set(1, l.get(1) + 1);
+                    l_c.add(i);
+                    stack.push(l_c);
+                    println("        " + l_c.toString());
                 }
             }
+            println("값");
+
+            int[] li = new int[size];
+            for(int j = 0; j < size; j++)
+            {
+                li[j] = 0;
+            }
+
+            int rejectCount = 0;
+            outerLoop : for(int i = 0; i < result.size(); i++)
+            {
+                println(result.get(i).toString());
+                int ind = 0;
+                Boolean[] li_ = new Boolean[size];
+                for(int j = 2; j < result.get(i).size(); j++)
+                {
+                    ind += result.get(i).get(j);
+                    for(int r = 0; r < x_guide_value[index][j-2]; r++)
+                    {
+                        li_[ind++] = true;
+                    }
+                }
+                for(int j = 0; j < size; j++)
+                {
+                    if(list[j] != null && list[j] == true && li_[j] == null)
+                    {
+                        rejectCount++;
+                        continue outerLoop;
+                    }
+                }
+                for(int j = 0; j < size; j++)
+                {
+                    if(list[j] != null && list[j] == false && li_[j] != null)
+                    {
+                        rejectCount++;
+                        continue outerLoop;
+                    }
+                }
+                for(int j = 0; j < size; j++)
+                {
+                    if(li_[j] != null && li_[j] == true)
+                    {
+                        li[j] += 1;
+                    }
+                }
+            }
+            println("결과 : ");
+            for(int j = 0; j < li.length; j++)
+            {
+                print(li[j] + " ");
+            }
+            println("\nresult size " + result.size() + "  reject " + rejectCount);
+
+            for(int j = 0; j < li.length; j++)
+            {
+                if(li[j] == result.size()-rejectCount) list[j] = true;
+            }
+
         }
         //------------------------------------------------------------------
 
         for(int i = 0; i < size; i++)
         {
             board[index][i] = list[i];
+        }
+        return false;
+    }
+    public Boolean checkY(int index)
+    {
+        Boolean[] list = new Boolean[size];
+        for(int i = 0; i < size; i++)
+        {
+            list[i] = board[i][index];
+        }
+
+        //------------------------------------------------------------------
+        {
+            int n = size;
+            for(int i = 0; i < y_guide_value[index].length; i++)
+            {
+                n -= y_guide_value[index][i];
+            }
+            // ■■■■□■■□■■■□□□□ 4 2 3
+            // ■■■■□□□□□■■□■■■ 4 2 3
+            ArrayList<ArrayList<Integer>> result = new ArrayList<>();
+            Stack<ArrayList<Integer>> stack = new Stack<>(); // stack index 0 : 총 사용한 수 / index 1 : 추가한 블럭 갯수
+            {
+                ArrayList<Integer> revList = new ArrayList<>();
+                revList.add(0);revList.add(0);
+                stack.push(revList);
+            } // 기본 값
+            int cou = 0;
+            while(!stack.isEmpty())
+            {
+                println("c " + cou++);
+                ArrayList<Integer> l = stack.pop(); if(l.get(1) == y_guide_value[index].length) {result.add(l); println("R" + l.toString()); continue;}
+                int i = 1; if(l.get(1) == 0) {i = 0;}
+                println("        " + (n - l.get(0) - (y_guide_value[index].length - l.get(1) - 1)) + " " + n + " " + y_guide_value[index].length);
+                for(; i < n - l.get(0) - (y_guide_value[index].length - l.get(1) - 2); i++)
+                {
+                    println("        " + i);
+                    ArrayList<Integer> l_c = new ArrayList<>(l);
+                    l_c.set(0, l.get(0) + i);
+                    l_c.set(1, l.get(1) + 1);
+                    l_c.add(i);
+                    stack.push(l_c);
+                    println("        " + l_c.toString());
+                }
+            }
+            println("값");
+
+            int[] li = new int[size];
+            for(int j = 0; j < size; j++)
+            {
+                li[j] = 0;
+            }
+
+            int rejectCount = 0;
+            outerLoop : for(int i = 0; i < result.size(); i++)
+            {
+                println(result.get(i).toString());
+                int ind = 0;
+                Boolean[] li_ = new Boolean[size];
+                for(int j = 2; j < result.get(i).size(); j++)
+                {
+                    ind += result.get(i).get(j);
+                    for(int r = 0; r < y_guide_value[index][j-2]; r++)
+                    {
+                        li_[ind++] = true;
+                    }
+                }
+                for(int j = 0; j < size; j++)
+                {
+                    if(list[j] != null && list[j] == true && li_[j] == null)
+                    {
+                        rejectCount++;
+                        continue outerLoop;
+                    }
+                }
+                for(int j = 0; j < size; j++)
+                {
+                    if(list[j] != null && list[j] == false && li_[j] != null)
+                    {
+                        rejectCount++;
+                        continue outerLoop;
+                    }
+                }
+                for(int j = 0; j < size; j++)
+                {
+                    if(li_[j] != null && li_[j] == true)
+                    {
+                        li[j] += 1;
+                    }
+                }
+            }
+            println("결과 : ");
+            for(int j = 0; j < li.length; j++)
+            {
+                print(li[j] + " ");
+            }
+            println("\nresult size " + result.size() + "  reject " + rejectCount);
+
+            for(int j = 0; j < li.length; j++)
+            {
+                if(li[j] == result.size()-rejectCount) list[j] = true;
+            }
+
+        }
+        //------------------------------------------------------------------
+
+        for(int i = 0; i < size; i++)
+        {
+            board[i][index] = list[i];
         }
         return false;
     }
@@ -225,18 +417,22 @@ public class Main
 
     public void print(String message)
     {
+        if(print)
         System.out.print(message);
     }
     public void print(int message)
     {
+        if(print)
         System.out.print(message);
     }
     public void println(String message)
     {
+        if(print)
         System.out.println(message);
     }
     public void println(int message)
     {
+        if(print)
         System.out.println(message);
     }
     public static void main(String[] args)
