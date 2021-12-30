@@ -161,6 +161,7 @@ public class Main
             for(int j = 0; j < li.length; j++)
             {
                 if(li[j] == result.size()-rejectCount) list[j] = true;
+                if(li[j] == 0) list[j] = false;
             }
 
         }
